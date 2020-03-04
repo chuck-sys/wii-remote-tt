@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Wii Controller</string>
+    <string name="btnStart">Start</string>
 </resources>
