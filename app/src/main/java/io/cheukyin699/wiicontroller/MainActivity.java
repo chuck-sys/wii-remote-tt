@@ -10,9 +10,17 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private final String REGISTRATION_TAG = "registration";
+
+    private RegistrationFragment registrationFragment;
+
     private SensorController sensorController;
     private DataSender dataSender;
-    private Button startBtn;
+
+    public MainActivity() {
+        sensorController = new SensorController(this);
+        registrationFragment = new RegistrationFragment();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,18 +30,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        sensorController = new SensorController(this);
-        startBtn = findViewById(R.id.startBtn);
-
-        startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sensorController.register();
-            }
-        });
-
         initDataSender(prefs);
         sensorController.addObserver(dataSender);
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_frame, registrationFragment, REGISTRATION_TAG)
+                .commit();
     }
 
     private void initDataSender(final SharedPreferences prefs) {
