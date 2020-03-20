@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Wii Controller</string>
     <string name="btnStart">Start</string>
+    <string name="preferencesLbl">Preferences</string>
+    <string name="serverLbl">Server</string>
+    <string name="serverAddressLbl">Server Address</string>
+    <string name="serverAddressDesc">The address of the server you are connecting to.</string>
+    <string name="serverPortLbl">Server Port</string>
+    <string name="serverPortDesc">The port of the server you are connecting to.</string>
 </resources>

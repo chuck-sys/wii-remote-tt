@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/serverLbl">
+
+        <EditTextPreference
+            android:key="serverAddress"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/serverAddressDesc"
+            android:title="@string/serverAddressLbl" />
+        <EditTextPreference
+            android:key="serverPort"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/serverPortDesc"
+            android:title="@string/serverPortLbl" />
+    </PreferenceCategory>
+</PreferenceScreen>
