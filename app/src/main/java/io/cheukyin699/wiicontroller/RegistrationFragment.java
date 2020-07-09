@@ -10,20 +10,26 @@ import androidx.fragment.app.Fragment;
 
 public class RegistrationFragment extends Fragment {
 
-    private Button startBtn;
+    private SensorController controller;
+
+    public RegistrationFragment(SensorController controller) {
+        this.controller = controller;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         View view = inflater.inflate(R.layout.registration_fragment, container, false);
 
-        startBtn = view.findViewById(R.id.startBtn);
+        Button startBtn = view.findViewById(R.id.startBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.main_frame, null)
+                        .replace(R.id.main_frame, new ControllerFragment(controller))
                         .addToBackStack(null)
                         .commit();
+
+                controller.register();
             }
         });
 

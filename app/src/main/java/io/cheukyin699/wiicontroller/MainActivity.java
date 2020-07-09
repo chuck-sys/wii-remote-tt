@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,15 +19,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     private final String REGISTRATION_TAG = "registration";
 
-    private RegistrationFragment registrationFragment;
-
     private SensorController sensorController;
     private DataSender dataSender;
-
-    public MainActivity() {
-        sensorController = new SensorController(this);
-        registrationFragment = new RegistrationFragment();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sensorController = new SensorController(this);
+        sensorController.unregister();
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -60,15 +58,26 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         sensorController.addObserver(dataSender);
 
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.main_frame, registrationFragment, REGISTRATION_TAG)
+                .add(R.id.main_frame, new RegistrationFragment(sensorController), REGISTRATION_TAG)
                 .commit();
     }
 
     private void initDataSender(final SharedPreferences prefs) {
         dataSender = new DataSender(
-                prefs.getString("IP", "127.0.0.1"),
-                prefs.getInt("PORT", 8080)
+                prefs.getString("serverAddress", "127.0.0.1"),
+                Integer.parseInt(prefs.getString("serverPort", "8080"))
         );
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                return true;
+            default:
+                return super.dispatchKeyEvent(event);
+        }
     }
 
     @Override

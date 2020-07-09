@@ -1,6 +1,7 @@
 package io.cheukyin699.wiicontroller;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -26,15 +28,15 @@ public class DataSender implements Observer {
         if (observable instanceof SensorController) {
             final SensorController controller = (SensorController) observable;
             final float[] vals = controller.getValues();
-            StringBuilder builder = new StringBuilder();
-            // There will be an extra comma at the end, but we can remove it on the server's side
+            // Format: n, val0, val1, val2, ..., valn
+            ByteBuffer buffer = ByteBuffer.allocate(vals.length * 4 + 4);
+            buffer.putInt(vals.length);
             for (float f : vals) {
-                builder.append(f);
-                builder.append(",");
+                buffer.putFloat(f);
             }
 
             try {
-                sendData(serverIp, serverPort, builder.toString());
+                sendData(serverIp, serverPort, buffer.array());
             } catch (UnknownHostException e) {
                 // TODO: Better error handling
                 e.printStackTrace();
@@ -42,7 +44,7 @@ public class DataSender implements Observer {
         }
     }
 
-    private void sendData(final String serverIp, final int serverPort, final String data) throws UnknownHostException {
+    private void sendData(final String serverIp, final int serverPort, final byte[] data) throws UnknownHostException {
         final SendTask client = new SendTask(serverIp, serverPort, data);
         client.execute();
     }
@@ -51,9 +53,9 @@ public class DataSender implements Observer {
 
         final private InetAddress serverIp;
         final private int serverPort;
-        final private String data;
+        final private byte[] data;
 
-        SendTask(final String serverIp, final int serverPort, final String data) throws UnknownHostException {
+        SendTask(final String serverIp, final int serverPort, final byte[] data) throws UnknownHostException {
             this.serverIp = InetAddress.getByName(serverIp);
             this.serverPort = serverPort;
             this.data = data;
@@ -63,11 +65,7 @@ public class DataSender implements Observer {
         protected Void doInBackground(Void... params) {
             try {
                 DatagramSocket sock = new DatagramSocket();
-                DatagramPacket packet = new DatagramPacket(
-                        this.data.getBytes(),
-                        this.data.getBytes().length,
-                        this.serverIp,
-                        this.serverPort);
+                DatagramPacket packet = new DatagramPacket(data, data.length, serverIp, serverPort);
                 sock.setBroadcast(true);
                 sock.send(packet);
             } catch (SocketException e) {
