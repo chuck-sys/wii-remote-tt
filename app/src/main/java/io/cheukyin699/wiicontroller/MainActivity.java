@@ -3,6 +3,7 @@ package io.cheukyin699.wiicontroller;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     private final String REGISTRATION_TAG = "registration";
 
+    private ControllerPreferencesFragment preferences = new ControllerPreferencesFragment();
     private SensorController sensorController;
     private DataSender dataSender;
 
@@ -29,18 +31,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return true;
     }
 
+    private boolean isPreferencesOpen() {
+        return getSupportFragmentManager().findFragmentById(preferences.getId()) != null;
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.preferencesItem:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_frame, new ControllerPreferencesFragment())
+        final FragmentManager fm = getSupportFragmentManager();
+        if (item.getItemId() == R.id.preferencesItem) {
+            if (!isPreferencesOpen()) {
+                fm.beginTransaction()
+                        .replace(R.id.main_frame, preferences)
                         .addToBackStack(null)
                         .commit();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            } else {
+                fm.popBackStack();
+            }
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
